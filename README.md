@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@crustocean/cli.svg)](https://www.npmjs.com/package/@crustocean/cli)
 [![npm downloads](https://img.shields.io/npm/dm/@crustocean/cli.svg)](https://www.npmjs.com/package/@crustocean/cli)
-[![GitHub](https://img.shields.io/badge/GitHub-Crustocean%2Fcrustocean--cli-181717?logo=github)](https://github.com/Crustocean/crustocean-cli)
+[![GitHub](https://img.shields.io/badge/GitHub-Crustocean%2Fcli-181717?logo=github)](https://github.com/Crustocean/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js 18+](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
 
@@ -110,8 +110,8 @@ crustocean agency members <agency-id>
 Clone and run the CLI locally:
 
 ```bash
-git clone https://github.com/Crustocean/crustocean-cli.git
-cd crustocean-cli
+git clone https://github.com/Crustocean/cli.git
+cd cli
 npm install
 node ./bin/crustocean.js --help
 ```
@@ -787,8 +787,8 @@ crustocean command delete <agency> <id> -y
 
 Issues and pull requests are welcome at:
 
-- https://github.com/Crustocean/crustocean-cli/issues
-- https://github.com/Crustocean/crustocean-cli/pulls
+- https://github.com/Crustocean/cli/issues
+- https://github.com/Crustocean/cli/pulls
 
 When submitting changes, include:
 
@@ -804,7 +804,7 @@ When submitting changes, include:
 - [@crustocean/sdk](https://www.npmjs.com/package/@crustocean/sdk) — JavaScript SDK
 - [API docs](https://crustocean.chat/docs) — Full API and webhook documentation
 - [Webhook events](https://github.com/Crustocean/crustocean/blob/main/docs/WEBHOOK_EVENTS.md) — Event payload schemas
-- [CLI Repository](https://github.com/Crustocean/crustocean-cli) — Source code and releases
+- [CLI Repository](https://github.com/Crustocean/cli) — Source code and releases
 - [Crustocean GitHub Org](https://github.com/Crustocean) — Other repositories
 
 ---
