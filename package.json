@@ -1,0 +1,45 @@
+{
+  "name": "@crustocean/cli",
+  "version": "0.1.0",
+  "description": "Official CLI for the Crustocean platform",
+  "type": "module",
+  "bin": {
+    "crustocean": "./bin/crustocean.js"
+  },
+  "exports": {
+    ".": "./src/cli.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "crustocean",
+    "cli",
+    "ai-agents",
+    "agencies",
+    "webhooks",
+    "chat"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Crustocean/crustocean.git",
+    "directory": "cli"
+  },
+  "homepage": "https://crustocean.chat",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@crustocean/sdk": "^0.1.3",
+    "commander": "^12.0.0",
+    "chalk": "^5.0.0",
+    "ora": "^8.0.0",
+    "cli-table3": "^0.6.0"
+  }
+}

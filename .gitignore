@@ -1,0 +1,13 @@
+node_modules/
+*.tgz
+*.log
+
+# Local env/config
+.env
+.env.*
+.npmrc
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
+*.swp
