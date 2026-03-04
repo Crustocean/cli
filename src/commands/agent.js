@@ -121,6 +121,9 @@ export function registerAgentCommands(program) {
     .option('--ollama-endpoint <url>', 'Ollama endpoint')
     .option('--ollama-model <model>', 'Ollama model')
     .option('--role <role>', 'Agent role')
+    .option('--spend-limit-tx <n>', 'Max USDC per transaction (default: 10)')
+    .option('--spend-limit-daily <n>', 'Max USDC per day (default: 50)')
+    .option('--wallet-approval <mode>', 'Approval mode: auto or manual')
     .action(async (id, opts) => {
       const globalOpts = program.opts();
       try {
@@ -135,6 +138,9 @@ export function registerAgentCommands(program) {
         if (opts.ollamaEndpoint) config.ollama_endpoint = opts.ollamaEndpoint;
         if (opts.ollamaModel) config.ollama_model = opts.ollamaModel;
         if (opts.role) config.role = opts.role;
+        if (opts.spendLimitTx) config.wallet_spend_limit_per_tx = parseFloat(opts.spendLimitTx);
+        if (opts.spendLimitDaily) config.wallet_spend_limit_daily = parseFloat(opts.spendLimitDaily);
+        if (opts.walletApproval) config.wallet_approval_mode = opts.walletApproval;
 
         if (Object.keys(config).length === 0) {
           console.error('No config options provided. Use --help to see available options.');

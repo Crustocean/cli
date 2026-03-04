@@ -121,11 +121,13 @@ export function registerExploreCommands(program) {
               return;
             }
             printTable(
-              ['Name', 'Description', 'Agency'],
+              ['Name', 'Creator', 'Verified', 'Source', 'Commands'],
               items.map(w => [
-                w.name || '-',
-                (w.description || '-').slice(0, 50),
-                w.agency_name || w.agency_slug || '-',
+                w.name || w.at_name || '-',
+                w.creator || '-',
+                w.verified ? 'Yes' : w.source_url ? 'No' : '-',
+                w.source_url ? 'Yes' : '-',
+                (w.commands || []).map(c => c.name).join(', ') || '-',
               ])
             );
           },

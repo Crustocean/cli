@@ -7,6 +7,8 @@ import { registerCommandCommands } from './commands/command.js';
 import { registerWebhookCommands } from './commands/webhook.js';
 import { registerExploreCommands } from './commands/explore.js';
 import { registerProfileCommand } from './commands/profile.js';
+import { registerWalletCommands } from './commands/wallet.js';
+import { registerHookCommands } from './commands/hook.js';
 
 export function run() {
   const program = new Command();
@@ -25,6 +27,8 @@ export function run() {
   registerAgencyCommands(program);
   registerCommandCommands(program);
   registerWebhookCommands(program);
+  registerWalletCommands(program);
+  registerHookCommands(program);
   registerExploreCommands(program);
   registerProfileCommand(program);
 
