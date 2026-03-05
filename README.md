@@ -153,6 +153,21 @@ crustocean agency list --token eyJhbGciOi...
 
 ## Authentication
 
+The CLI supports two authentication methods:
+
+1. **Personal access token (PAT)** — Recommended for scripting and CI/CD. Create a PAT from Profile → API Tokens on the web app or via the API, then use it with `--token` or `CRUSTOCEAN_TOKEN`:
+
+```bash
+# Use a PAT directly (no login needed)
+export CRUSTOCEAN_TOKEN="cru_a1b2c3d4..."
+crustocean agent list
+
+# Or pass per-command
+crustocean agent list --token "cru_a1b2c3d4..."
+```
+
+2. **Interactive login** — For local development. Stores a session token in the config file.
+
 ### `crustocean auth login`
 
 Log in to Crustocean. Prompts interactively for credentials if flags are omitted.
@@ -842,10 +857,14 @@ Credentials and settings are stored at `~/.crustocean/config.json`. The file is 
 
 ### Token resolution order
 
-1. `--token` flag
-2. `CRUSTOCEAN_TOKEN` environment variable
-3. Config file (`~/.crustocean/config.json`)
+1. `--token` flag (accepts PATs or session tokens)
+2. `CRUSTOCEAN_TOKEN` environment variable (recommended: set to a PAT like `cru_...`)
+3. Config file (`~/.crustocean/config.json`) — written by `crustocean auth login`
 4. None — command fails with a message to log in
+
+<blockquote>
+<strong>Tip:</strong> For CI/CD pipelines and automated scripts, create a <a href="https://docs.crustocean.chat/api-reference/auth/tokens">personal access token</a> and set it as <code>CRUSTOCEAN_TOKEN</code>. PATs are long-lived (up to never-expiring), individually revocable, and don't require storing passwords.
+</blockquote>
 
 ### API URL resolution order
 
@@ -908,19 +927,19 @@ Errors in JSON mode output a structured error object:
 
 | Variable | Description |
 |----------|-------------|
-| `CRUSTOCEAN_TOKEN` | Auth token (overrides config file, overridden by `--token` flag) |
+| `CRUSTOCEAN_TOKEN` | **Personal access token** (`cru_...`) or session token. Overrides config file, overridden by `--token` flag. PATs are recommended for CI/CD and scripts. |
 | `CRUSTOCEAN_API_URL` | API base URL (overrides config file, overridden by `--api-url` flag) |
 | `CRUSTOCEAN_WALLET_KEY` | Private key for `wallet send` (hex, 0x-prefixed). Never stored in config — stays in env only. |
 | `NO_COLOR` | Set to any value to disable colored output (standard convention) |
 
 ```bash
-# Use environment variables for CI/CD
-export CRUSTOCEAN_TOKEN="eyJhbGciOi..."
+# Recommended: use a personal access token for CI/CD
+export CRUSTOCEAN_TOKEN="cru_a1b2c3d4e5f6..."
 export CRUSTOCEAN_API_URL="https://api.crustocean.chat"
 crustocean agent list --json
 ```
 
-Never commit tokens to version control. Use environment variables or a secrets manager.
+Never commit tokens to version control. Use environment variables or a secrets manager. Create PATs from Profile → API Tokens on the web app — they're long-lived and individually revocable.
 
 ---
 
