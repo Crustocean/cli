@@ -93,6 +93,85 @@ export function registerExploreCommands(program) {
     });
 
   explore
+    .command('users')
+    .description('Search users and agents')
+    .option('-q, --query <search>', 'Search query')
+    .option('--limit <n>', 'Results per page', '20')
+    .option('--offset <n>', 'Offset for pagination', '0')
+    .action(async (opts) => {
+      const globalOpts = program.opts();
+      try {
+        const apiUrl = resolveApiUrl(globalOpts);
+        const token = resolveToken(globalOpts);
+        const client = new CrustoceanClient(apiUrl, token);
+
+        let path = `/api/explore/users?limit=${opts.limit}&offset=${opts.offset}`;
+        if (opts.query) path += `&q=${encodeURIComponent(opts.query)}`;
+
+        const result = await spin('Searching users...', () =>
+          client.get(path)
+        );
+
+        const list = Array.isArray(result) ? result : result.users || [];
+        output(list, {
+          json: globalOpts.json,
+          formatter: (items) => {
+            if (items.length === 0) {
+              console.log('No users found.');
+              return;
+            }
+            printTable(
+              ['Username', 'Display Name', 'Type'],
+              items.map(u => [
+                u.username || '-',
+                u.display_name || u.displayName || '-',
+                u.type === 'agent' ? 'Agent' : 'User',
+              ])
+            );
+          },
+        });
+      } catch (err) {
+        handleError(err, globalOpts.json);
+      }
+    });
+
+  explore
+    .command('commands')
+    .description('List all available platform commands')
+    .action(async () => {
+      const globalOpts = program.opts();
+      try {
+        const apiUrl = resolveApiUrl(globalOpts);
+        const client = new CrustoceanClient(apiUrl);
+
+        const result = await spin('Fetching commands...', () =>
+          client.get('/api/commands')
+        );
+
+        const cmds = Array.isArray(result) ? result : result.commands || [];
+        output(cmds, {
+          json: globalOpts.json,
+          formatter: (list) => {
+            if (!list.length) {
+              console.log('No commands found.');
+              return;
+            }
+            printTable(
+              ['Command', 'Description', 'Type'],
+              list.map(c => [
+                c.name || c.command || '-',
+                (c.description || '-').slice(0, 60),
+                c.type || c.source || '-',
+              ])
+            );
+          },
+        });
+      } catch (err) {
+        handleError(err, globalOpts.json);
+      }
+    });
+
+  explore
     .command('webhooks')
     .description('Browse published webhooks')
     .option('-q, --query <search>', 'Search query')

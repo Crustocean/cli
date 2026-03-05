@@ -1,7 +1,7 @@
 import { login, register } from '@crustocean/sdk';
-import { resolveApiUrl, resolveToken, readConfig, writeConfig, clearConfig, getConfigPath } from '../config.js';
+import { resolveApiUrl, resolveToken, readConfig, writeConfig, clearConfig, getConfigPath, requireToken } from '../config.js';
 import { CrustoceanClient } from '../client.js';
-import { output, printSuccess, printHint, printTable, spin } from '../output.js';
+import { output, printSuccess, printHint, printTable, truncateId, spin } from '../output.js';
 import { promptText, promptPassword, promptConfirm } from '../prompts.js';
 import { handleError } from '../errors.js';
 
@@ -139,6 +139,146 @@ export function registerAuthCommands(program) {
               ['Username', d.username || '-'],
             ]);
           },
+        });
+      } catch (err) {
+        handleError(err, globalOpts.json);
+      }
+    });
+
+  auth
+    .command('change-password')
+    .description('Change your account password')
+    .option('--current <password>', 'Current password')
+    .option('--new <password>', 'New password')
+    .action(async (opts) => {
+      const globalOpts = program.opts();
+      try {
+        const apiUrl = resolveApiUrl(globalOpts);
+        const token = requireToken(globalOpts);
+        const client = new CrustoceanClient(apiUrl, token);
+
+        const currentPassword = opts.current || await promptPassword('Current password:');
+        const newPassword = opts.new || await promptPassword('New password:');
+
+        await spin('Changing password...', () =>
+          client.post('/api/auth/change-password', { currentPassword, newPassword })
+        );
+
+        output({ ok: true }, {
+          json: globalOpts.json,
+          formatter: () => printSuccess('Password changed.'),
+        });
+      } catch (err) {
+        handleError(err, globalOpts.json);
+      }
+    });
+
+  // ── Personal Access Tokens ─────────────────────────────────────────────
+
+  auth
+    .command('create-token')
+    .description('Create a personal access token (PAT)')
+    .option('--name <name>', 'Token name')
+    .option('--expires <duration>', 'Expiry (e.g. 30d, 90d, 365d, never)')
+    .action(async (opts) => {
+      const globalOpts = program.opts();
+      try {
+        const apiUrl = resolveApiUrl(globalOpts);
+        const token = requireToken(globalOpts);
+        const client = new CrustoceanClient(apiUrl, token);
+
+        const name = opts.name || await promptText('Token name:');
+
+        const body = { name };
+        if (opts.expires) body.expires = opts.expires;
+
+        const result = await spin('Creating token...', () =>
+          client.post('/api/auth/tokens', body)
+        );
+
+        output(result, {
+          json: globalOpts.json,
+          formatter: (r) => {
+            printSuccess(`Token "${name}" created`);
+            if (r.token) {
+              console.log(`\n  ${r.token}\n`);
+              printHint('Copy this token now — it will not be shown again.');
+            }
+            printTable(['Field', 'Value'], [
+              ['ID', r.id || '-'],
+              ['Name', r.name || name],
+              ['Expires', r.expires_at || r.expires || 'never'],
+            ]);
+          },
+        });
+      } catch (err) {
+        handleError(err, globalOpts.json);
+      }
+    });
+
+  auth
+    .command('list-tokens')
+    .description('List your personal access tokens')
+    .action(async () => {
+      const globalOpts = program.opts();
+      try {
+        const apiUrl = resolveApiUrl(globalOpts);
+        const token = requireToken(globalOpts);
+        const client = new CrustoceanClient(apiUrl, token);
+
+        const result = await spin('Fetching tokens...', () =>
+          client.get('/api/auth/tokens')
+        );
+
+        const tokens = Array.isArray(result) ? result : result.tokens || [];
+        output(tokens, {
+          json: globalOpts.json,
+          formatter: (list) => {
+            if (!list.length) {
+              console.log('No tokens found. Create one with `crustocean auth create-token`.');
+              return;
+            }
+            printTable(
+              ['ID', 'Name', 'Created', 'Expires', 'Last Used'],
+              list.map(t => [
+                truncateId(t.id),
+                t.name || '-',
+                t.created_at ? new Date(t.created_at).toLocaleDateString() : '-',
+                t.expires_at ? new Date(t.expires_at).toLocaleDateString() : 'never',
+                t.last_used_at ? new Date(t.last_used_at).toLocaleDateString() : 'never',
+              ])
+            );
+          },
+        });
+      } catch (err) {
+        handleError(err, globalOpts.json);
+      }
+    });
+
+  auth
+    .command('revoke-token')
+    .description('Revoke a personal access token')
+    .argument('<id>', 'Token ID')
+    .option('-y, --confirm', 'Skip confirmation prompt')
+    .action(async (id, opts) => {
+      const globalOpts = program.opts();
+      try {
+        if (!opts.confirm) {
+          const yes = await promptConfirm(`Revoke token ${truncateId(id)}?`);
+          if (!yes) { console.log('Cancelled.'); return; }
+        }
+
+        const apiUrl = resolveApiUrl(globalOpts);
+        const token = requireToken(globalOpts);
+        const client = new CrustoceanClient(apiUrl, token);
+
+        await spin('Revoking token...', () =>
+          client.delete(`/api/auth/tokens/${encodeURIComponent(id)}`)
+        );
+
+        output({ ok: true }, {
+          json: globalOpts.json,
+          formatter: () => printSuccess(`Token ${truncateId(id)} revoked.`),
         });
       } catch (err) {
         handleError(err, globalOpts.json);

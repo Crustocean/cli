@@ -9,6 +9,8 @@ import { registerExploreCommands } from './commands/explore.js';
 import { registerProfileCommand } from './commands/profile.js';
 import { registerWalletCommands } from './commands/wallet.js';
 import { registerHookCommands } from './commands/hook.js';
+import { registerDMCommands } from './commands/dm.js';
+import { registerRunCommands } from './commands/run.js';
 
 export function run() {
   const program = new Command();
@@ -16,7 +18,7 @@ export function run() {
   program
     .name('crustocean')
     .description('Official CLI for the Crustocean platform')
-    .version('0.1.0')
+    .version('0.2.0')
     .option('--json', 'Output as JSON')
     .option('--api-url <url>', 'API base URL')
     .option('--token <token>', 'Auth token (overrides stored token)')
@@ -31,6 +33,8 @@ export function run() {
   registerHookCommands(program);
   registerExploreCommands(program);
   registerProfileCommand(program);
+  registerDMCommands(program);
+  registerRunCommands(program);
 
   program.hook('postAction', () => {});
 

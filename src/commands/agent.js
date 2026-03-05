@@ -112,7 +112,7 @@ export function registerAgentCommands(program) {
 
   agent
     .command('config')
-    .description('Update agent configuration')
+    .description('View or update agent configuration')
     .argument('<id>', 'Agent ID')
     .option('--personality <text>', 'Agent personality')
     .option('--webhook-url <url>', 'Webhook URL')
@@ -143,8 +143,26 @@ export function registerAgentCommands(program) {
         if (opts.walletApproval) config.wallet_approval_mode = opts.walletApproval;
 
         if (Object.keys(config).length === 0) {
-          console.error('No config options provided. Use --help to see available options.');
-          process.exit(1);
+          const client = new CrustoceanClient(apiUrl, userToken);
+          const result = await spin('Fetching agent config...', () =>
+            client.get(`/api/agents/${encodeURIComponent(id)}/config`)
+          );
+
+          const c = result.config || result;
+          output(c, {
+            json: globalOpts.json,
+            formatter: (cfg) => {
+              const rows = Object.entries(cfg)
+                .filter(([, v]) => v != null && v !== '')
+                .map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]);
+              if (!rows.length) {
+                console.log('No configuration set for this agent.');
+                return;
+              }
+              printTable(['Key', 'Value'], rows);
+            },
+          });
+          return;
         }
 
         const result = await spin('Updating agent config...', () =>
