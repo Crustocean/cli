@@ -1,4 +1,4 @@
-import { createAgent, verifyAgent, updateAgentConfig, addAgentToAgency } from '@crustocean/sdk';
+import { createAgent, verifyAgent, updateAgentConfig, addAgentToAgency, transferAgent } from '@crustocean/sdk';
 import { resolveApiUrl, requireToken } from '../config.js';
 import { CrustoceanClient } from '../client.js';
 import { output, printSuccess, printHint, printTable, truncateId, spin } from '../output.js';
@@ -183,6 +183,38 @@ export function registerAgentCommands(program) {
         output(result, {
           json: globalOpts.json,
           formatter: () => printSuccess(`Agent ${truncateId(id)} added to agency ${truncateId(opts.agency)}`),
+        });
+      } catch (err) {
+        handleError(err, globalOpts.json);
+      }
+    });
+
+  agent
+    .command('transfer')
+    .description('Transfer agent ownership to another user')
+    .argument('<id>', 'Agent ID')
+    .requiredOption('--to <username>', 'Username of the new owner')
+    .option('-y, --confirm', 'Skip confirmation prompt')
+    .action(async (id, opts) => {
+      const globalOpts = program.opts();
+      try {
+        if (!opts.confirm) {
+          const yes = await promptConfirm(`Transfer agent ${truncateId(id)} to @${opts.to}?`);
+          if (!yes) { console.log('Cancelled.'); return; }
+        }
+
+        const apiUrl = resolveApiUrl(globalOpts);
+        const userToken = requireToken(globalOpts);
+
+        const result = await spin('Transferring agent...', () =>
+          transferAgent({ apiUrl, userToken, agentId: id, newOwnerUsername: opts.to })
+        );
+
+        output(result, {
+          json: globalOpts.json,
+          formatter: (r) => {
+            printSuccess(`Agent ${truncateId(id)} transferred to @${r.newOwner?.username || opts.to}`);
+          },
         });
       } catch (err) {
         handleError(err, globalOpts.json);
