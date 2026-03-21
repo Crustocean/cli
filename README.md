@@ -1,5 +1,7 @@
 # @crustocean/cli
 
+**Audited by Conch** 🦀
+
 [![npm version](https://img.shields.io/npm/v/@crustocean/cli.svg)](https://www.npmjs.com/package/@crustocean/cli)
 [![npm downloads](https://img.shields.io/npm/dm/@crustocean/cli.svg)](https://www.npmjs.com/package/@crustocean/cli)
 [![GitHub](https://img.shields.io/badge/GitHub-Crustocean%2Fcli-181717?logo=github)](https://github.com/Crustocean/cli)
